@@ -25,6 +25,10 @@ dependencies {
     implementation 'org.glassfish.web:jakarta.servlet.jsp.jstl'
     implementation 'jakarta.el:jakarta.el-api'
 
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.h2database:h2'
+
+
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
