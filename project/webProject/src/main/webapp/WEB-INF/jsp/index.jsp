@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,10 +11,37 @@
         .course-header { margin-bottom: 30px; }
         .section-title { margin-top: 20px; margin-bottom: 10px; }
         .list-group-item a { text-decoration: none; }
+        .navbar { margin-bottom: 20px; }
+        .welcome-message { margin-bottom: 20px; }
     </style>
 </head>
 <body>
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="${pageContext.request.contextPath}/">Course Management</a>
+        <div class="navbar-nav ms-auto">
+            <c:choose>
+                <c:when test="${pageContext.request.userPrincipal == null}">
+                    <a class="nav-link" href="${pageContext.request.contextPath}/login">Login</a>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/register">Register</a>
+                </c:when>
+                <c:otherwise>
+                    <span class="nav-link">Hello, ${pageContext.request.userPrincipal.name}</span>
+                    <form action="${pageContext.request.contextPath}/logout" method="post" style="display:inline;">
+                        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                        <button type="submit" class="nav-link btn btn-link">Logout</button>
+                    </form>
+                </c:otherwise>
+            </c:choose>
+        </div>
+    </div>
+</nav>
 <div class="container">
+    <c:if test="${pageContext.request.userPrincipal != null}">
+        <div class="welcome-message">
+            <h4>Welcome, ${pageContext.request.userPrincipal.name}</h4>
+        </div>
+    </c:if>
     <h1 class="course-header">${courseName}</h1>
     <h3 class="section-title">Lectures</h3>
     <c:if test="${empty lectures}">
@@ -23,7 +51,12 @@
         <ul class="list-group">
             <c:forEach var="lecture" items="${lectures}">
                 <li class="list-group-item">
-                    <a href="/webProject/lecture/${lecture.id}">${lecture.title}</a>
+                    <sec:authorize access="isAuthenticated()">
+                        <a href="${pageContext.request.contextPath}/lecture/${lecture.id}">${lecture.title}</a>
+                    </sec:authorize>
+                    <sec:authorize access="!isAuthenticated()">
+                        ${lecture.title} (Login required)
+                    </sec:authorize>
                 </li>
             </c:forEach>
         </ul>
@@ -36,7 +69,12 @@
         <ul class="list-group">
             <c:forEach var="poll" items="${polls}">
                 <li class="list-group-item">
-                    <a href="/webProject/poll/${poll.id}">${poll.question}</a>
+                    <sec:authorize access="isAuthenticated()">
+                        <a href="${pageContext.request.contextPath}/poll/${poll.id}">${poll.question}</a>
+                    </sec:authorize>
+                    <sec:authorize access="!isAuthenticated()">
+                        ${poll.question} (Login required)
+                    </sec:authorize>
                 </li>
             </c:forEach>
         </ul>
