@@ -13,6 +13,10 @@ public class LectureService {
     @Autowired
     private LectureDao lectureDao;
 
+    public Lecture getLecture(String id) {
+        return lectureDao.findById(id);
+    }
+
     public List<Lecture> getLecturesByCourseId(Long courseId) {
         return lectureDao.findByCourseId(courseId);
     }
