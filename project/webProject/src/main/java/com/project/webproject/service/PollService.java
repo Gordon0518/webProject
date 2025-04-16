@@ -13,6 +13,10 @@ public class PollService {
     @Autowired
     private PollDao pollDao;
 
+    public Poll getPoll(String id) {
+        return pollDao.findById(id);
+    }
+
     public List<Poll> getPollsByCourseId(Long courseId) {
         return pollDao.findByCourseId(courseId);
     }

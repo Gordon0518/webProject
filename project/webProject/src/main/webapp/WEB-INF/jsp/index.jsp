@@ -35,7 +35,9 @@
     <c:if test="${not empty polls}">
         <ul class="list-group">
             <c:forEach var="poll" items="${polls}">
-                <li class="list-group-item">${poll.question}</li>
+                <li class="list-group-item">
+                    <a href="/webProject/poll/${poll.id}">${poll.question}</a>
+                </li>
             </c:forEach>
         </ul>
     </c:if>

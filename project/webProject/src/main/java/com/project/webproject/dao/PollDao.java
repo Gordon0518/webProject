@@ -13,6 +13,10 @@ public class PollDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+    public Poll findById(String id) {
+        return entityManager.find(Poll.class, id);
+    }
+
     public List<Poll> findByCourseId(Long courseId) {
         return entityManager.createQuery("SELECT p FROM Poll p WHERE p.course.id = :courseId", Poll.class)
                 .setParameter("courseId", courseId)
