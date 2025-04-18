@@ -12,6 +12,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Controller
 public class UserController {
 
@@ -69,7 +72,13 @@ public class UserController {
     @GetMapping("/users")
     public String listUsers(Model model) {
         logger.debug("Handling GET /users");
-        model.addAttribute("users", appUserService.getAllUsers());
+        try {
+            List<AppUser> users = appUserService.getAllUsers();
+            model.addAttribute("users", users != null ? users : new ArrayList<>());
+        } catch (Exception e) {
+            logger.error("Error retrieving users", e);
+            model.addAttribute("errorMessage", "Unable to retrieve users: " + e.getMessage());
+        }
         return "users";
     }
 

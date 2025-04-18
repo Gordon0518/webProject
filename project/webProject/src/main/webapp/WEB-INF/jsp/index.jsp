@@ -27,6 +27,9 @@
                 </c:when>
                 <c:otherwise>
                     <a class="nav-link" href="${pageContext.request.contextPath}/profile">Profile</a>
+                    <sec:authorize access="hasRole('ROLE_TEACHER')">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/users">Users</a>
+                    </sec:authorize>
                     <span class="nav-link">Hello, ${pageContext.request.userPrincipal.name}</span>
                     <form action="${pageContext.request.contextPath}/logout" method="post" style="display:inline;">
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
