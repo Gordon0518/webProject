@@ -1,49 +1,49 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<!DOCTYPE html>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <html>
 <head>
-  <title>Poll - ${pollQuestion}</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body { padding: 20px; }
-    .poll-header { margin-bottom: 30px; }
-    .section-title { margin-top: 20px; margin-bottom: 10px; }
-    .comment { margin-bottom: 10px; }
-  </style>
+  <title>Poll</title>
 </head>
 <body>
-<div class="container">
-  <h1 class="poll-header">${pollQuestion}</h1>
-  <h3 class="section-title">Options</h3>
-  <c:if test="${empty options}">
-    <p>No options available.</p>
-  </c:if>
-  <c:if test="${not empty options}">
-    <ul class="list-group">
-      <c:forEach var="option" items="${options}">
-        <li class="list-group-item">
-            ${option.optionText} (Votes: ${option.voteCount})
-        </li>
-      </c:forEach>
-    </ul>
-  </c:if>
-  <h3 class="section-title">Comments</h3>
-  <c:if test="${empty comments}">
-    <p>No comments available.</p>
-  </c:if>
-  <c:if test="${not empty comments}">
-    <div>
-      <c:forEach var="comment" items="${comments}">
-        <div class="comment">
-          <strong>${comment.author}:</strong>
-          <p>${comment.content}</p>
-        </div>
-      </c:forEach>
-    </div>
-  </c:if>
-  <a href="${pageContext.request.contextPath}/" class="btn btn-primary mt-3">Back to Course</a>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<h2>${pollQuestion}</h2>
+
+<%-- Debug output --%>
+<p>Debug: userVote = ${userVote}, userVote.option = ${userVote != null ? userVote.option : 'null'}</p>
+
+<%-- Voting Form --%>
+<sec:authorize access="hasRole('STUDENT')">
+  <form action="${pageContext.request.contextPath}/poll/${pollId}/vote" method="post">
+    <c:forEach var="option" items="${options}">
+      <input type="radio" name="optionId" value="${option.id}"
+             <c:if test="${userVote != null && userVote.option != null && userVote.option.id == option.id}">checked</c:if>>
+      <c:out value="${option.optionText}"/> (Votes: <c:out value="${option.voteCount}"/>)<br>
+    </c:forEach>
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+    <input type="submit" value="Vote">
+  </form>
+</sec:authorize>
+
+<%-- Comments Section --%>
+<h3>Comments</h3>
+<c:forEach var="comment" items="${comments}">
+  <p>
+    <c:out value="${comment.content}"/>
+    <c:if test="${comment.author != null}">
+      by <c:out value="${comment.author.username}"/>
+    </c:if>
+  </p>
+</c:forEach>
+
+<%-- Add Comment Form --%>
+<sec:authorize access="hasRole('STUDENT')">
+  <form action="${pageContext.request.contextPath}/poll/${pollId}/comment" method="post">
+    <textarea name="commentText" rows="4" cols="50"></textarea><br>
+    <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+    <input type="submit" value="Add Comment">
+  </form>
+</sec:authorize>
+
+<a href="${pageContext.request.contextPath}/">Back to Home</a>
 </body>
 </html>

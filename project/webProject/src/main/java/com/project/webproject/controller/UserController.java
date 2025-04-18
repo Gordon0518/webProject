@@ -5,11 +5,12 @@ import com.project.webproject.service.AppUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 @Controller
 public class UserController {
@@ -45,4 +46,25 @@ public class UserController {
         logger.debug("Handling GET /login");
         return "login";
     }
+
+    @GetMapping("/profile")
+    public String showProfile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        logger.debug("Handling GET /profile for user: {}", userDetails.getUsername());
+        AppUser user = appUserService.findByUsername(userDetails.getUsername());
+        model.addAttribute("user", user);
+        return "profile";
+    }
+
+    @PostMapping("/profile")
+    public String updateProfile(@AuthenticationPrincipal UserDetails userDetails,
+                                @RequestParam String fullName,
+                                @RequestParam String email,
+                                @RequestParam String phoneNumber,
+                                @RequestParam(required = false) String password) {
+        logger.debug("Handling POST /profile for user: {}", userDetails.getUsername());
+        appUserService.updateUserProfile(userDetails.getUsername(), fullName, email, phoneNumber, password);
+        return "redirect:/profile?success=true";
+    }
+
+
 }

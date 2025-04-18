@@ -26,6 +26,7 @@
                     <a class="nav-link" href="${pageContext.request.contextPath}/register">Register</a>
                 </c:when>
                 <c:otherwise>
+                    <a class="nav-link" href="${pageContext.request.contextPath}/profile">Profile</a>
                     <span class="nav-link">Hello, ${pageContext.request.userPrincipal.name}</span>
                     <form action="${pageContext.request.contextPath}/logout" method="post" style="display:inline;">
                         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>

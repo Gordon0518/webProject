@@ -16,4 +16,12 @@ public class PollOptionService {
     public List<PollOption> getOptionsByPollId(String pollId) {
         return pollOptionDao.findByPollId(pollId);
     }
+
+    public PollOption getOption(String id) {
+        return pollOptionDao.findById(id);
+    }
+
+    public void save(PollOption option) {
+        pollOptionDao.save(option);
+    }
 }

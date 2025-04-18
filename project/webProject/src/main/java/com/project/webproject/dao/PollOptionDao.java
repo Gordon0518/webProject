@@ -14,8 +14,20 @@ public class PollOptionDao {
     private EntityManager entityManager;
 
     public List<PollOption> findByPollId(String pollId) {
-        return entityManager.createQuery("SELECT o FROM PollOption o WHERE o.poll.id = :pollId", PollOption.class)
+        return entityManager.createQuery("SELECT po FROM PollOption po WHERE po.poll.id = :pollId", PollOption.class)
                 .setParameter("pollId", pollId)
                 .getResultList();
+    }
+
+    public PollOption findById(String id) {
+        return entityManager.find(PollOption.class, id);
+    }
+
+    public void save(PollOption option) {
+        if (option.getId() == null) {
+            entityManager.persist(option);
+        } else {
+            entityManager.merge(option);
+        }
     }
 }

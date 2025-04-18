@@ -14,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -27,6 +26,9 @@ public class SecurityConfig {
 
     @Autowired
     private AppUserService appUserService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -43,7 +45,7 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/files/**")
                         ).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/logout", "GET")).denyAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().hasRole("STUDENT")
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -79,22 +81,18 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        logger.debug("Using NoOpPasswordEncoder");
-        return NoOpPasswordEncoder.getInstance();
-    }
-
-    @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider() {
             @Override
             public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+
                 Authentication auth = super.authenticate(authentication);
+
                 return auth;
             }
         };
         provider.setUserDetailsService(appUserService);
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setPasswordEncoder(passwordEncoder);
         logger.debug("AuthenticationProvider configured");
         return provider;
     }

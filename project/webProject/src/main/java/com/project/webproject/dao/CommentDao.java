@@ -13,6 +13,10 @@ public class CommentDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+    public void save(Comment comment) {
+        entityManager.persist(comment);
+    }
+
     public List<Comment> findByLectureId(String lectureId) {
         return entityManager.createQuery("SELECT c FROM Comment c WHERE c.lecture.id = :lectureId", Comment.class)
                 .setParameter("lectureId", lectureId)

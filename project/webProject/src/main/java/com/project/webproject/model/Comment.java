@@ -1,21 +1,23 @@
 package com.project.webproject.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 
 @Entity
 public class Comment {
     @Id
     private String id;
-    private String author;
+
+    @ManyToOne
+    @JoinColumn(name = "author_username")
+    private AppUser author;
+
     private String content;
 
     @ManyToOne
     private Lecture lecture;
 
     public Comment() {}
-    public Comment(String id, String author, String content, Lecture lecture) {
+    public Comment(String id, AppUser author, String content, Lecture lecture) {
         this.id = id;
         this.author = author;
         this.content = content;
@@ -24,8 +26,8 @@ public class Comment {
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
-    public String getAuthor() { return author; }
-    public void setAuthor(String author) { this.author = author; }
+    public AppUser getAuthor() { return author; }
+    public void setAuthor(AppUser author) { this.author = author; }
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
     public Lecture getLecture() { return lecture; }
