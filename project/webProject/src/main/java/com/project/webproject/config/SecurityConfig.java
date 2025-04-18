@@ -44,8 +44,15 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/js/**"),
                                 new AntPathRequestMatcher("/files/**")
                         ).permitAll()
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/poll/**"),
+                                new AntPathRequestMatcher("/lecture/**")
+                        ).hasAnyRole("STUDENT", "TEACHER")
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/users/**")
+                        ).hasRole("TEACHER")
                         .requestMatchers(new AntPathRequestMatcher("/logout", "GET")).denyAll()
-                        .anyRequest().hasRole("STUDENT")
+                        .anyRequest().hasAnyRole("STUDENT", "TEACHER", "ADMIN")
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
@@ -85,9 +92,7 @@ public class SecurityConfig {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider() {
             @Override
             public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-
                 Authentication auth = super.authenticate(authentication);
-
                 return auth;
             }
         };

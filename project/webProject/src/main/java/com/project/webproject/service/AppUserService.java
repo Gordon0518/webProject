@@ -14,6 +14,8 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class AppUserService implements UserDetailsService {
 
@@ -77,5 +79,68 @@ public class AppUserService implements UserDetailsService {
                 .build();
         logger.debug("Created UserDetails: username={}, roles={}", userDetails.getUsername(), userDetails.getAuthorities());
         return userDetails;
+    }
+
+    @Transactional
+    public void addUser(String username, String password, String role, String fullName, String email, String phoneNumber) {
+        logger.debug("Adding user: username={}, role={}", username, role);
+        if (findByUsername(username) != null) {
+            logger.warn("User already exists: {}", username);
+            throw new IllegalArgumentException("Username already exists");
+        }
+        AppUser user = new AppUser();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setRole(role);
+        user.setFullName(fullName);
+        user.setEmail(email);
+        user.setPhoneNumber(phoneNumber);
+        entityManager.persist(user);
+        logger.debug("User added: {}", username);
+    }
+
+    @Transactional
+    public void updateUser(String username, String password, String role, String fullName, String email, String phoneNumber) {
+        logger.debug("Updating user: username={}", username);
+        AppUser user = findByUsername(username);
+        if (user == null) {
+            logger.warn("User not found for update: {}", username);
+            throw new IllegalArgumentException("User not found");
+        }
+        if (password != null && !password.isEmpty()) {
+            user.setPassword(passwordEncoder.encode(password));
+        }
+        if (role != null && !role.isEmpty()) {
+            user.setRole(role);
+        }
+        if (fullName != null) {
+            user.setFullName(fullName);
+        }
+        if (email != null) {
+            user.setEmail(email);
+        }
+        if (phoneNumber != null) {
+            user.setPhoneNumber(phoneNumber);
+        }
+        entityManager.merge(user);
+        logger.debug("User updated: {}", username);
+    }
+
+    @Transactional
+    public void deleteUser(String username) {
+        logger.debug("Deleting user: username={}", username);
+        AppUser user = findByUsername(username);
+        if (user == null) {
+            logger.warn("User not found for deletion: {}", username);
+            throw new IllegalArgumentException("User not found");
+        }
+        entityManager.remove(user);
+        logger.debug("User deleted: {}", username);
+    }
+
+    public List<AppUser> getAllUsers() {
+        logger.debug("Retrieving all users");
+        return entityManager.createQuery("SELECT u FROM AppUser u", AppUser.class)
+                .getResultList();
     }
 }

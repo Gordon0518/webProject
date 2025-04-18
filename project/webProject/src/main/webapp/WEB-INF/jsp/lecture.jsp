@@ -7,18 +7,26 @@
   <title>Lecture Material - ${lectureTitle}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { padding: 20px; }
-    .lecture-header { margin-bottom: 30px; }
-    .section-title { margin-top: 20px; margin-bottom: 10px; }
-    .comment { margin-bottom: 10px; }
+    body { padding: 20px; background-color: #f8f9fa; }
+    .lecture-container { max-width: 700px; margin: auto; background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .section-title { margin-top: 20px; margin-bottom: 15px; color: #343a40; }
+    .comment { margin-bottom: 15px; padding: 10px; background: #f1f3f5; border-radius: 5px; }
+    .btn-primary { background-color: #0d6efd; border-color: #0d6efd; }
+    .btn-primary:hover { background-color: #0b5ed7; border-color: #0a58ca; }
+    textarea { resize: vertical; }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1 class="lecture-header">${lectureTitle}</h1>
+<div class="container lecture-container">
+  <h1 class="mb-4">${lectureTitle}</h1>
+
+  <c:if test="${not empty successMessage}">
+    <div class="alert alert-success">${successMessage}</div>
+  </c:if>
+
   <h3 class="section-title">Lecture Notes</h3>
   <c:if test="${empty notes}">
-    <p>No notes available.</p>
+    <p class="text-muted">No notes available.</p>
   </c:if>
   <c:if test="${not empty notes}">
     <ul class="list-group">
@@ -29,27 +37,29 @@
       </c:forEach>
     </ul>
   </c:if>
+
   <h3 class="section-title">Comments</h3>
   <c:if test="${empty comments}">
-    <p>No comments available.</p>
+    <p class="text-muted">No comments available.</p>
   </c:if>
   <c:if test="${not empty comments}">
     <div>
       <c:forEach var="comment" items="${comments}">
         <div class="comment">
-          <strong>${comment.author.username}:</strong>
-          <p>${comment.content}</p>
+          <strong><c:out value="${comment.author != null ? comment.author.username : 'Unknown'}"/>:</strong>
+          <p><c:out value="${comment.content}"/></p>
         </div>
       </c:forEach>
     </div>
   </c:if>
-  <sec:authorize access="hasRole('STUDENT')">
+
+  <sec:authorize access="hasAnyRole('STUDENT', 'TEACHER')">
     <c:if test="${not empty lectureId}">
-      <form action="${pageContext.request.contextPath}/lecture/${lectureId}/comment" method="post" class="mt-3">
+      <form action="${pageContext.request.contextPath}/lecture/${lectureId}/comment" method="post" class="mt-4">
         <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
         <div class="mb-3">
           <label for="content" class="form-label">Add Comment</label>
-          <textarea class="form-control" id="content" name="content" required></textarea>
+          <textarea class="form-control" id="content" name="content" rows="4" required aria-label="Comment text"></textarea>
         </div>
         <button type="submit" class="btn btn-primary">Submit Comment</button>
       </form>
@@ -58,7 +68,8 @@
       <p class="text-danger">Error: Lecture ID is missing. Cannot add comments.</p>
     </c:if>
   </sec:authorize>
-  <a href="${pageContext.request.contextPath}/" class="btn btn-primary mt-3">Back to Course</a>
+
+  <a href="${pageContext.request.contextPath}/" class="btn btn-primary mt-4">Back to Course</a>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

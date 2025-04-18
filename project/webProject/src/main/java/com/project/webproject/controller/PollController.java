@@ -14,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class PollController {
@@ -46,7 +47,7 @@ public class PollController {
         }
         var options = pollOptionService.getOptionsByPollId(id);
         var comments = pollCommentService.getCommentsByPollId(id);
-        var userVote = voteService.getVoteByVoterAndPoll(userDetails.getUsername(), id);
+        var userVote = userDetails != null ? voteService.getVoteByVoterAndPoll(userDetails.getUsername(), id) : null;
 
         logger.debug("Poll: {}, Options: {}, Comments: {}, UserVote: {}",
                 poll.getQuestion(), options.size(), comments.size(), userVote != null ? userVote.getId() : "null");
@@ -62,7 +63,8 @@ public class PollController {
 
     @PostMapping("/poll/{id}/comment")
     public String addPollComment(@PathVariable("id") String id, @RequestParam String content,
-                                 @AuthenticationPrincipal UserDetails userDetails, Model model) {
+                                 @AuthenticationPrincipal UserDetails userDetails, Model model,
+                                 RedirectAttributes redirectAttributes) {
         logger.debug("Handling POST /poll/{}/comment", id);
         if (id == null || id.isEmpty()) {
             logger.warn("Invalid poll ID: {}", id);
@@ -77,12 +79,14 @@ public class PollController {
         }
         AppUser user = appUserService.findByUsername(userDetails.getUsername());
         pollCommentService.savePollComment(id, content, user);
+        redirectAttributes.addFlashAttribute("successMessage", "Comment added successfully");
         return "redirect:/poll/" + id;
     }
 
     @PostMapping("/poll/{id}/vote")
     public String castVote(@PathVariable("id") String id, @RequestParam(required = false) String optionId,
-                           @AuthenticationPrincipal UserDetails userDetails, Model model) {
+                           @AuthenticationPrincipal UserDetails userDetails, Model model,
+                           RedirectAttributes redirectAttributes) {
         logger.debug("Handling POST /poll/{}/vote", id);
         if (id == null || id.isEmpty()) {
             logger.warn("Invalid poll ID: {}", id);
@@ -97,11 +101,13 @@ public class PollController {
         }
         AppUser user = appUserService.findByUsername(userDetails.getUsername());
         voteService.castVote(id, optionId, user);
+        redirectAttributes.addFlashAttribute("successMessage", "Vote submitted successfully");
         return "redirect:/poll/" + id;
     }
 
     @PostMapping("/poll/{id}/undo-vote")
-    public String undoVote(@PathVariable("id") String id, @AuthenticationPrincipal UserDetails userDetails, Model model) {
+    public String undoVote(@PathVariable("id") String id, @AuthenticationPrincipal UserDetails userDetails,
+                           Model model, RedirectAttributes redirectAttributes) {
         logger.debug("Handling POST /poll/{}/undo-vote", id);
         if (id == null || id.isEmpty()) {
             logger.warn("Invalid poll ID: {}", id);
@@ -115,7 +121,8 @@ public class PollController {
             return "error";
         }
         AppUser user = appUserService.findByUsername(userDetails.getUsername());
-        voteService.castVote(id, null, user); // Null optionId to undo vote
+        voteService.castVote(id, null, user);
+        redirectAttributes.addFlashAttribute("successMessage", "Vote successfully undone");
         return "redirect:/poll/" + id;
     }
 }

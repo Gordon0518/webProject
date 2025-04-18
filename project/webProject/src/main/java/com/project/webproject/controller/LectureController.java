@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class LectureController {
@@ -32,7 +33,7 @@ public class LectureController {
     private AppUserService appUserService;
 
     @GetMapping("/lecture/{id}")
-    public String lectureMaterial(@PathVariable("id") String id, Model model) {
+    public String lectureMaterial(@PathVariable("id") String id, @AuthenticationPrincipal UserDetails userDetails, Model model) {
         logger.debug("Handling GET /lecture/{}", id);
         var lecture = lectureService.getLecture(id);
         if (lecture == null) {
@@ -50,7 +51,8 @@ public class LectureController {
 
     @PostMapping("/lecture/{id}/comment")
     public String addComment(@PathVariable("id") String id, @RequestParam String content,
-                             @AuthenticationPrincipal UserDetails userDetails, Model model) {
+                             @AuthenticationPrincipal UserDetails userDetails, Model model,
+                             RedirectAttributes redirectAttributes) {
         logger.debug("Handling POST /lecture/{}/comment", id);
         if (id == null || id.isEmpty()) {
             logger.warn("Invalid lecture ID: {}", id);
@@ -65,6 +67,7 @@ public class LectureController {
         }
         AppUser user = appUserService.findByUsername(userDetails.getUsername());
         commentService.saveComment(id, content, user);
+        redirectAttributes.addFlashAttribute("successMessage", "Comment added successfully");
         return "redirect:/lecture/" + id;
     }
 }

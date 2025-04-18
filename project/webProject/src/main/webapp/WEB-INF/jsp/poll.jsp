@@ -25,8 +25,12 @@
 <div class="container poll-container">
   <h1 class="mb-4">${pollQuestion}</h1>
 
+  <c:if test="${not empty successMessage}">
+    <div class="alert alert-success">${successMessage}</div>
+  </c:if>
+
   <%-- Voting Form --%>
-  <sec:authorize access="hasRole('STUDENT')">
+  <sec:authorize access="hasAnyRole('STUDENT', 'TEACHER')">
     <form action="${pageContext.request.contextPath}/poll/${pollId}/vote" method="post">
       <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
       <h3 class="section-title">Options</h3>
@@ -52,11 +56,10 @@
       </c:forEach>
       <div class="d-flex gap-2 mt-3">
         <button type="submit" class="btn btn-primary">Submit Vote</button>
-
       </div>
     </form>
   </sec:authorize>
-  <sec:authorize access="!hasRole('STUDENT')">
+  <sec:authorize access="!hasAnyRole('STUDENT', 'TEACHER')">
     <h3 class="section-title">Results</h3>
     <c:set var="totalVotes" value="0"/>
     <c:forEach var="option" items="${options}">
@@ -89,8 +92,8 @@
     </div>
   </c:if>
 
-
-  <sec:authorize access="hasRole('STUDENT')">
+  <%-- Add Comment Form --%>
+  <sec:authorize access="hasAnyRole('STUDENT', 'TEACHER')">
     <form action="${pageContext.request.contextPath}/poll/${pollId}/comment" method="post" class="mt-4">
       <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
       <div class="mb-3">
