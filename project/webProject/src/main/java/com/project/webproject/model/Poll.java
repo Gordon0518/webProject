@@ -1,10 +1,6 @@
 package com.project.webproject.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-
+import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
@@ -16,10 +12,10 @@ public class Poll {
     @ManyToOne
     private Course course;
 
-    @OneToMany(mappedBy = "poll")
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<PollOption> options;
 
-    @OneToMany(mappedBy = "poll")
+    @OneToMany(mappedBy = "poll", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<PollComment> comments;
 
     public Poll() {}
@@ -29,6 +25,7 @@ public class Poll {
         this.course = course;
     }
 
+    // Getters and Setters
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
     public String getQuestion() { return question; }

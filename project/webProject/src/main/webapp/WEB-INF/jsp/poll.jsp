@@ -15,8 +15,8 @@
     .comment { margin-bottom: 15px; padding: 10px; background: #f1f3f5; border-radius: 5px; }
     .btn-primary { background-color: #0d6efd; border-color: #0d6efd; }
     .btn-primary:hover { background-color: #0b5ed7; border-color: #0a58ca; }
-    .btn-secondary { background-color: #6c757d; border-color: #6c757d; }
-    .btn-secondary:hover { background-color: #5c636a; border-color: #565e64; }
+    .btn-danger { background-color: #dc3545; border-color: #dc3545; }
+    .btn-danger:hover { background-color: #c82333; border-color: #bd2130; }
     .form-check-input:focus { box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); }
     textarea { resize: vertical; }
   </style>
@@ -84,9 +84,17 @@
   <c:if test="${not empty comments}">
     <div>
       <c:forEach var="comment" items="${comments}">
-        <div class="comment">
-          <strong><c:out value="${comment.author != null ? comment.author.username : 'Unknown'}"/>:</strong>
-          <p><c:out value="${comment.content}"/></p>
+        <div class="comment d-flex justify-content-between align-items-start">
+          <div>
+            <strong><c:out value="${comment.author != null ? comment.author.username : 'Unknown'}"/>:</strong>
+            <p><c:out value="${comment.content}"/></p>
+          </div>
+          <sec:authorize access="hasRole('ROLE_TEACHER')">
+            <form action="${pageContext.request.contextPath}/poll/${pollId}/comment/${comment.id}/delete" method="post">
+              <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+          </sec:authorize>
         </div>
       </c:forEach>
     </div>

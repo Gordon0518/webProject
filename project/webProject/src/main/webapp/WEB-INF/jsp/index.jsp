@@ -13,6 +13,8 @@
         .list-group-item a { text-decoration: none; }
         .navbar { margin-bottom: 20px; }
         .welcome-message { margin-bottom: 20px; }
+        .btn-danger { background-color: #dc3545; border-color: #dc3545; }
+        .btn-danger:hover { background-color: #bb2d3b; border-color: #b02a37; }
     </style>
 </head>
 <body>
@@ -29,6 +31,8 @@
                     <a class="nav-link" href="${pageContext.request.contextPath}/profile">Profile</a>
                     <sec:authorize access="hasRole('ROLE_TEACHER')">
                         <a class="nav-link" href="${pageContext.request.contextPath}/users">Users</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/lecture/add">Add Lecture</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/poll/add">Add Poll</a>
                     </sec:authorize>
                     <span class="nav-link">Hello, ${pageContext.request.userPrincipal.name}</span>
                     <form action="${pageContext.request.contextPath}/logout" method="post" style="display:inline;">
@@ -47,6 +51,9 @@
         </div>
     </c:if>
     <h1 class="course-header">${courseName}</h1>
+    <c:if test="${not empty successMessage}">
+        <div class="alert alert-success">${successMessage}</div>
+    </c:if>
     <h3 class="section-title">Lectures</h3>
     <c:if test="${empty lectures}">
         <p>No lectures available.</p>
@@ -54,12 +61,18 @@
     <c:if test="${not empty lectures}">
         <ul class="list-group">
             <c:forEach var="lecture" items="${lectures}">
-                <li class="list-group-item">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
                     <sec:authorize access="isAuthenticated()">
                         <a href="${pageContext.request.contextPath}/lecture/${lecture.id}">${lecture.title}</a>
                     </sec:authorize>
                     <sec:authorize access="!isAuthenticated()">
                         ${lecture.title} (Login required)
+                    </sec:authorize>
+                    <sec:authorize access="hasRole('ROLE_TEACHER')">
+                        <form action="${pageContext.request.contextPath}/lecture/${lecture.id}/delete" method="post" style="display:inline;">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete ${lecture.title}?')">Delete</button>
+                        </form>
                     </sec:authorize>
                 </li>
             </c:forEach>
@@ -72,12 +85,18 @@
     <c:if test="${not empty polls}">
         <ul class="list-group">
             <c:forEach var="poll" items="${polls}">
-                <li class="list-group-item">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
                     <sec:authorize access="isAuthenticated()">
                         <a href="${pageContext.request.contextPath}/poll/${poll.id}">${poll.question}</a>
                     </sec:authorize>
                     <sec:authorize access="!isAuthenticated()">
                         ${poll.question} (Login required)
+                    </sec:authorize>
+                    <sec:authorize access="hasRole('ROLE_TEACHER')">
+                        <form action="${pageContext.request.contextPath}/poll/${poll.id}/delete" method="post" style="display:inline;">
+                            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this poll?')">Delete</button>
+                        </form>
                     </sec:authorize>
                 </li>
             </c:forEach>

@@ -22,4 +22,13 @@ public class PollCommentDao {
                 .setParameter("pollId", pollId)
                 .getResultList();
     }
+
+    public PollComment findById(String id) {
+        return entityManager.find(PollComment.class, id);
+    }
+
+    public void delete(PollComment comment) {
+        PollComment managedComment = entityManager.contains(comment) ? comment : entityManager.merge(comment);
+        entityManager.remove(managedComment);
+    }
 }

@@ -22,4 +22,13 @@ public class LectureDao {
                 .setParameter("courseId", courseId)
                 .getResultList();
     }
+
+    public void save(Lecture lecture) {
+        entityManager.persist(lecture);
+    }
+
+    public void delete(Lecture lecture) {
+        Lecture managedLecture = entityManager.contains(lecture) ? lecture : entityManager.merge(lecture);
+        entityManager.remove(managedLecture);
+    }
 }

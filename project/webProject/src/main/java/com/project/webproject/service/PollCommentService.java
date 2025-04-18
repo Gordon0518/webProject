@@ -33,4 +33,16 @@ public class PollCommentService {
         pollCommentDao.save(comment);
         logger.debug("Poll comment saved: {}", comment.getId());
     }
+
+    @Transactional
+    public void deletePollComment(String commentId) {
+        logger.debug("Deleting poll comment: {}", commentId);
+        PollComment comment = pollCommentDao.findById(commentId);
+        if (comment != null) {
+            pollCommentDao.delete(comment);
+            logger.debug("Poll comment deleted: {}", commentId);
+        } else {
+            logger.warn("Poll comment not found: {}", commentId);
+        }
+    }
 }

@@ -32,6 +32,13 @@ public class PollOptionService {
     public void save(PollOption option) {
         logger.debug("Saving poll option: {}, voteCount: {}", option.getId(), option.getVoteCount());
         pollOptionDao.save(option);
-        logger.debug("Poll option saved: {}", option.getId());
+    }
+
+    @Transactional
+    public void saveAll(List<PollOption> options) {
+        logger.debug("Saving {} poll options", options.size());
+        for (PollOption option : options) {
+            pollOptionDao.save(option);
+        }
     }
 }

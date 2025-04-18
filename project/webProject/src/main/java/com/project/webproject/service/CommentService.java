@@ -2,7 +2,6 @@ package com.project.webproject.service;
 
 import com.project.webproject.dao.CommentDao;
 import com.project.webproject.model.AppUser;
-
 import com.project.webproject.model.Comment;
 import com.project.webproject.model.Lecture;
 import org.slf4j.Logger;
@@ -33,5 +32,17 @@ public class CommentService {
         Comment comment = new Comment(UUID.randomUUID().toString(), author, content, new Lecture(lectureId, null, null));
         commentDao.save(comment);
         logger.debug("Comment saved: {}", comment.getId());
+    }
+
+    @Transactional
+    public void deleteComment(String commentId) {
+        logger.debug("Deleting comment: {}", commentId);
+        Comment comment = commentDao.findById(commentId);
+        if (comment != null) {
+            commentDao.delete(comment);
+            logger.debug("Comment deleted: {}", commentId);
+        } else {
+            logger.warn("Comment not found: {}", commentId);
+        }
     }
 }

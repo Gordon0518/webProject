@@ -18,4 +18,17 @@ public class LectureNoteDao {
                 .setParameter("lectureId", lectureId)
                 .getResultList();
     }
+
+    public void save(LectureNote note) {
+        entityManager.persist(note);
+    }
+
+    public void delete(LectureNote note) {
+        LectureNote managedNote = entityManager.contains(note) ? note : entityManager.merge(note);
+        entityManager.remove(managedNote);
+    }
+
+    public LectureNote findById(String id) {
+        return entityManager.find(LectureNote.class, id);
+    }
 }
