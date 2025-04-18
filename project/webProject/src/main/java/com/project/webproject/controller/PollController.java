@@ -51,15 +51,6 @@ public class PollController {
         logger.debug("Poll: {}, Options: {}, Comments: {}, UserVote: {}",
                 poll.getQuestion(), options.size(), comments.size(), userVote != null ? userVote.getId() : "null");
 
-        if (userVote != null && userVote.getOption() == null) {
-            logger.warn("User vote for {} has null option", userDetails.getUsername());
-        }
-        for (var comment : comments) {
-            if (comment.getAuthor() == null) {
-                logger.warn("Comment {} has null author", comment.getId());
-            }
-        }
-
         model.addAttribute("pollId", id);
         model.addAttribute("pollQuestion", poll.getQuestion());
         model.addAttribute("options", options);
@@ -90,7 +81,7 @@ public class PollController {
     }
 
     @PostMapping("/poll/{id}/vote")
-    public String castVote(@PathVariable("id") String id, @RequestParam String optionId,
+    public String castVote(@PathVariable("id") String id, @RequestParam(required = false) String optionId,
                            @AuthenticationPrincipal UserDetails userDetails, Model model) {
         logger.debug("Handling POST /poll/{}/vote", id);
         if (id == null || id.isEmpty()) {
@@ -106,6 +97,25 @@ public class PollController {
         }
         AppUser user = appUserService.findByUsername(userDetails.getUsername());
         voteService.castVote(id, optionId, user);
+        return "redirect:/poll/" + id;
+    }
+
+    @PostMapping("/poll/{id}/undo-vote")
+    public String undoVote(@PathVariable("id") String id, @AuthenticationPrincipal UserDetails userDetails, Model model) {
+        logger.debug("Handling POST /poll/{}/undo-vote", id);
+        if (id == null || id.isEmpty()) {
+            logger.warn("Invalid poll ID: {}", id);
+            model.addAttribute("error", "Invalid poll ID");
+            return "error";
+        }
+        var poll = pollService.getPoll(id);
+        if (poll == null) {
+            logger.warn("Poll not found for id: {}", id);
+            model.addAttribute("error", "Poll not found");
+            return "error";
+        }
+        AppUser user = appUserService.findByUsername(userDetails.getUsername());
+        voteService.castVote(id, null, user); // Null optionId to undo vote
         return "redirect:/poll/" + id;
     }
 }
