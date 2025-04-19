@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -39,23 +40,21 @@ public class VoteService {
             PollOption oldOption = existingVote.getOption();
             if (newOption != null && oldOption != null && oldOption.getId().equals(newOption.getId())) {
                 logger.debug("Same option selected, no update needed for voter: {}", voter.getUsername());
-                return; // No change needed if the same option is selected
+                return;
             }
             if (oldOption != null) {
-                // Decrease vote count of the old option
                 logger.debug("Decreasing vote count for old option: {} from {}", oldOption.getId(), oldOption.getVoteCount());
                 oldOption.setVoteCount(Math.max(0, oldOption.getVoteCount() - 1));
                 pollOptionService.save(oldOption);
             }
             if (newOption != null) {
-                // Update to new option
                 logger.debug("Updating vote to new option: {}", newOption.getId());
                 existingVote.setOption(newOption);
+                existingVote.setVoteTimestamp(java.time.LocalDateTime.now());
                 newOption.setVoteCount(newOption.getVoteCount() + 1);
                 pollOptionService.save(newOption);
                 voteDao.update(existingVote);
             } else {
-                // Undo vote (remove it)
                 logger.debug("Undoing vote for voter: {}, poll: {}", voter.getUsername(), pollId);
                 voteDao.delete(existingVote);
             }
@@ -75,5 +74,15 @@ public class VoteService {
         Vote vote = voteDao.findByVoterAndPoll(username, pollId);
         logger.debug("Retrieved vote for voter: {}, poll: {}, vote: {}", username, pollId, vote != null ? "found" : "null");
         return vote;
+    }
+
+    public List<Vote> getVotingHistory(String username) {
+        logger.debug("Retrieving voting history for user: {}", username);
+        return voteDao.findByVoterUsername(username);
+    }
+
+    public List<Vote> getAllVotes() {
+        logger.debug("Retrieving all voting history");
+        return voteDao.findAllVotes();
     }
 }

@@ -18,17 +18,28 @@ public class PollCommentDao {
     }
 
     public List<PollComment> findByPollId(String pollId) {
-        return entityManager.createQuery("SELECT c FROM PollComment c WHERE c.poll.id = :pollId", PollComment.class)
+        return entityManager.createQuery(
+                        "SELECT c FROM PollComment c WHERE c.poll.id = :pollId ORDER BY c.timestamp DESC",
+                        PollComment.class
+                )
                 .setParameter("pollId", pollId)
                 .getResultList();
-    }
-
-    public PollComment findById(String id) {
-        return entityManager.find(PollComment.class, id);
     }
 
     public void delete(PollComment comment) {
         PollComment managedComment = entityManager.contains(comment) ? comment : entityManager.merge(comment);
         entityManager.remove(managedComment);
+    }
+
+    public PollComment findById(String commentId) {
+        return entityManager.find(PollComment.class, commentId);
+    }
+
+    public List<PollComment> findAllComments() {
+        return entityManager.createQuery(
+                        "SELECT c FROM PollComment c ORDER BY c.timestamp DESC",
+                        PollComment.class
+                )
+                .getResultList();
     }
 }

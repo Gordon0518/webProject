@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,28 +22,41 @@ public class PollCommentService {
     @Autowired
     private PollCommentDao pollCommentDao;
 
+    @Autowired
+    private PollService pollService;
+
+    @Transactional
+    public void savePollComment(String pollId, String content, AppUser author) {
+        logger.debug("Saving comment for poll: {}, author: {}", pollId, author.getUsername());
+        Poll poll = pollService.getPoll(pollId);
+        if (poll == null) {
+            logger.warn("Poll not found for id: {}", pollId);
+            throw new IllegalArgumentException("Poll not found");
+        }
+        PollComment comment = new PollComment(UUID.randomUUID().toString(), poll, author, content);
+        pollCommentDao.save(comment);
+        logger.debug("Comment saved successfully");
+    }
+
     public List<PollComment> getCommentsByPollId(String pollId) {
-        logger.debug("Fetching comments for poll: {}", pollId);
+        logger.debug("Retrieving comments for poll: {}", pollId);
         return pollCommentDao.findByPollId(pollId);
     }
 
     @Transactional
-    public void savePollComment(String pollId, String content, AppUser author) {
-        logger.debug("Saving poll comment for poll: {}, by user: {}", pollId, author.getUsername());
-        PollComment comment = new PollComment(UUID.randomUUID().toString(), author, content, new Poll(pollId, null, null));
-        pollCommentDao.save(comment);
-        logger.debug("Poll comment saved: {}", comment.getId());
+    public void deletePollComment(String commentId) {
+        logger.debug("Deleting comment: {}", commentId);
+        PollComment comment = pollCommentDao.findById(commentId);
+        if (comment == null) {
+            logger.warn("Comment not found for id: {}", commentId);
+            throw new IllegalArgumentException("Comment not found");
+        }
+        pollCommentDao.delete(comment);
+        logger.debug("Comment deleted successfully");
     }
 
-    @Transactional
-    public void deletePollComment(String commentId) {
-        logger.debug("Deleting poll comment: {}", commentId);
-        PollComment comment = pollCommentDao.findById(commentId);
-        if (comment != null) {
-            pollCommentDao.delete(comment);
-            logger.debug("Poll comment deleted: {}", commentId);
-        } else {
-            logger.warn("Poll comment not found: {}", commentId);
-        }
+    public List<PollComment> getAllComments() {
+        logger.debug("Retrieving all poll comments");
+        return pollCommentDao.findAllComments();
     }
 }

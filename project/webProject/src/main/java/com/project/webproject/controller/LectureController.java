@@ -98,7 +98,7 @@ public class LectureController {
             String username = authentication.getName();
             AppUser user = new AppUser();
             user.setUsername(username);
-            commentService.saveComment(id, content, user);
+            commentService.saveLectureComment(id, content, user);
             redirectAttributes.addFlashAttribute("successMessage", "Comment added successfully");
             return "redirect:/lecture/" + id;
         } catch (Exception e) {
@@ -116,7 +116,7 @@ public class LectureController {
             var lecture = lectureService.getLecture(id);
             if (lecture == null) {
                 logger.warn("Lecture not found for id: {}", id);
-                model.addAttribute("error", " Lecture not found");
+                model.addAttribute("error", "Lecture not found");
                 return "error";
             }
             lectureService.deleteLecture(id);
@@ -143,7 +143,7 @@ public class LectureController {
                 model.addAttribute("error", "Lecture not found");
                 return "error";
             }
-            commentService.deleteComment(commentId);
+            commentService.deleteLectureComment(commentId);
             redirectAttributes.addFlashAttribute("successMessage", "Comment deleted successfully");
             return "redirect:/lecture/" + lectureId;
         } catch (Exception e) {

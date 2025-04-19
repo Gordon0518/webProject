@@ -30,6 +30,8 @@
                 <c:otherwise>
                     <a class="nav-link" href="${pageContext.request.contextPath}/profile">Profile</a>
                     <sec:authorize access="hasRole('ROLE_TEACHER')">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/voting-history">Voting History</a>
+                        <a class="nav-link" href="${pageContext.request.contextPath}/comment-history">Comment History</a>
                         <a class="nav-link" href="${pageContext.request.contextPath}/users">Users</a>
                         <a class="nav-link" href="${pageContext.request.contextPath}/lecture/add">Add Lecture</a>
                         <a class="nav-link" href="${pageContext.request.contextPath}/poll/add">Add Poll</a>

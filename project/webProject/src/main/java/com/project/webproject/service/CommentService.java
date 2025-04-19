@@ -21,28 +21,41 @@ public class CommentService {
     @Autowired
     private CommentDao commentDao;
 
+    @Autowired
+    private LectureService lectureService;
+
+    @Transactional
+    public void saveLectureComment(String lectureId, String content, AppUser author) {
+        logger.debug("Saving comment for lecture: {}, author: {}", lectureId, author.getUsername());
+        Lecture lecture = lectureService.getLecture(lectureId);
+        if (lecture == null) {
+            logger.warn("Lecture not found for id: {}", lectureId);
+            throw new IllegalArgumentException("Lecture not found");
+        }
+        Comment comment = new Comment(UUID.randomUUID().toString(), author, content, lecture);
+        commentDao.save(comment);
+        logger.debug("Comment saved successfully");
+    }
+
     public List<Comment> getCommentsByLectureId(String lectureId) {
-        logger.debug("Fetching comments for lecture: {}", lectureId);
+        logger.debug("Retrieving comments for lecture: {}", lectureId);
         return commentDao.findByLectureId(lectureId);
     }
 
     @Transactional
-    public void saveComment(String lectureId, String content, AppUser author) {
-        logger.debug("Saving comment for lecture: {}, by user: {}", lectureId, author.getUsername());
-        Comment comment = new Comment(UUID.randomUUID().toString(), author, content, new Lecture(lectureId, null, null));
-        commentDao.save(comment);
-        logger.debug("Comment saved: {}", comment.getId());
-    }
-
-    @Transactional
-    public void deleteComment(String commentId) {
+    public void deleteLectureComment(String commentId) {
         logger.debug("Deleting comment: {}", commentId);
         Comment comment = commentDao.findById(commentId);
-        if (comment != null) {
-            commentDao.delete(comment);
-            logger.debug("Comment deleted: {}", commentId);
-        } else {
-            logger.warn("Comment not found: {}", commentId);
+        if (comment == null) {
+            logger.warn("Comment not found for id: {}", commentId);
+            throw new IllegalArgumentException("Comment not found");
         }
+        commentDao.delete(comment);
+        logger.debug("Comment deleted successfully");
+    }
+
+    public List<Comment> getAllComments() {
+        logger.debug("Retrieving all lecture comments");
+        return commentDao.findAllComments();
     }
 }

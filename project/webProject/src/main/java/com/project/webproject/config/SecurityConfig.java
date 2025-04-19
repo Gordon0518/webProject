@@ -45,6 +45,10 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/files/**")
                         ).permitAll()
                         .requestMatchers(
+                                new AntPathRequestMatcher("/voting-history"),
+                                new AntPathRequestMatcher("/comment-history")
+                        ).hasRole("TEACHER")
+                        .requestMatchers(
                                 new AntPathRequestMatcher("/lecture/add", "GET"),
                                 new AntPathRequestMatcher("/lecture/add", "POST"),
                                 new AntPathRequestMatcher("/lecture/*/delete", "POST"),

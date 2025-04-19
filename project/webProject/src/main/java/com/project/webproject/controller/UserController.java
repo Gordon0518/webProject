@@ -1,10 +1,17 @@
 package com.project.webproject.controller;
 
 import com.project.webproject.model.AppUser;
+import com.project.webproject.model.Comment;
+import com.project.webproject.model.PollComment;
+import com.project.webproject.model.Vote;
 import com.project.webproject.service.AppUserService;
+import com.project.webproject.service.CommentService;
+import com.project.webproject.service.PollCommentService;
+import com.project.webproject.service.VoteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
@@ -22,6 +29,15 @@ public class UserController {
 
     @Autowired
     private AppUserService appUserService;
+
+    @Autowired
+    private VoteService voteService;
+
+    @Autowired
+    private PollCommentService pollCommentService;
+
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/register")
     public String showRegistrationForm(Model model) {
@@ -67,6 +83,26 @@ public class UserController {
         logger.debug("Handling POST /profile for user: {}", userDetails.getUsername());
         appUserService.updateUserProfile(userDetails.getUsername(), fullName, email, phoneNumber, password);
         return "redirect:/profile?success=true";
+    }
+
+    @GetMapping("/voting-history")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
+    public String showVotingHistory(Model model) {
+        logger.debug("Handling GET /voting-history");
+        List<Vote> votes = voteService.getAllVotes();
+        model.addAttribute("votes", votes);
+        return "votingHistory";
+    }
+
+    @GetMapping("/comment-history")
+    @PreAuthorize("hasRole('ROLE_TEACHER')")
+    public String showCommentHistory(Model model) {
+        logger.debug("Handling GET /comment-history");
+        List<PollComment> pollComments = pollCommentService.getAllComments();
+        List<Comment> lectureComments = commentService.getAllComments();
+        model.addAttribute("pollComments", pollComments != null ? pollComments : new ArrayList<>());
+        model.addAttribute("lectureComments", lectureComments != null ? lectureComments : new ArrayList<>());
+        return "commentHistory";
     }
 
     @GetMapping("/users")

@@ -16,9 +16,14 @@ INSERT INTO lecture_note (id, file_name, file_url, lecture_id) VALUES ('note1', 
 INSERT INTO lecture_note (id, file_name, file_url, lecture_id) VALUES ('note2', 'Variables Guide.pdf', '/files/variables_guide.pdf', 'lecture2');
 
 -- Insert comments (after app_user to satisfy author_username FK)
-INSERT INTO comment (id, author_username, content, lecture_id) VALUES ('comment1', 'teacher1', 'Great intro!', 'lecture1');
-INSERT INTO comment (id, author_username, content, lecture_id) VALUES ('comment2', 'student1', 'Very clear.', 'lecture1');
-INSERT INTO comment (id, author_username, content, lecture_id) VALUES ('comment3', 'student1', 'Need examples.', 'lecture2');
+INSERT INTO comment (id, author_username, content, comment_timestamp, lecture_id)
+VALUES ('comment1', 'teacher1', 'Great intro!', CURRENT_TIMESTAMP, 'lecture1');
+
+INSERT INTO comment (id, author_username, content, comment_timestamp, lecture_id)
+VALUES ('comment2', 'student1', 'Very clear.', CURRENT_TIMESTAMP, 'lecture1');
+
+INSERT INTO comment (id, author_username, content, comment_timestamp, lecture_id)
+VALUES ('comment3', 'student1', 'Need examples.', CURRENT_TIMESTAMP, 'lecture2');
 
 -- Insert polls
 INSERT INTO poll (id, question, course_id) VALUES ('poll1', 'Which date do you prefer for the mid-term test?', 1);
@@ -35,6 +40,11 @@ INSERT INTO poll_option (id, option_text, vote_count, poll_id) VALUES ('opt7', '
 INSERT INTO poll_option (id, option_text, vote_count, poll_id) VALUES ('opt8', 'loop', 1, 'poll2');
 
 -- Insert poll comments (after app_user to satisfy author_username FK)
-INSERT INTO poll_comment (id, author_username, content, poll_id) VALUES ('pcomment1', 'teacher1', 'Please choose a date.', 'poll1');
-INSERT INTO poll_comment (id, author_username, content, poll_id) VALUES ('pcomment2', 'student1', 'October 15 works for me.', 'poll1');
-INSERT INTO poll_comment (id, author_username, content, poll_id) VALUES ('pcomment3', 'student1', 'Class is correct!', 'poll2');
+INSERT INTO poll_comment (id, username, content, comment_timestamp, poll_id)
+VALUES ('pcomment1', 'teacher1', 'Please choose a date.', CURRENT_TIMESTAMP, 'poll1');
+
+INSERT INTO poll_comment (id, username, content, comment_timestamp, poll_id)
+VALUES ('pcomment2', 'student1', 'I prefer early October.', CURRENT_TIMESTAMP, 'poll1');
+
+INSERT INTO poll_comment (id, username, content, comment_timestamp, poll_id)
+VALUES ('pcomment3', 'student1', 'Class is correct.', CURRENT_TIMESTAMP, 'poll2');
